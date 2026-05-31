@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Algorithmic Intelligence Calculator - Advanced Computational Mathematics, Algorithm Design, and Recursive Logic Engine">
+<meta name="keywords" content="algorithm, mathematics, fibonacci, matrix, sorting, complexity analysis, computer science">
+<title>Algorithmic Intelligence Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050810;
+    --bg2: #080d1a;
+    --surface: rgba(15,20,40,0.7);
+    --surface2: rgba(20,28,55,0.6);
+    --border: rgba(80,120,255,0.15);
+    --border-glow: rgba(80,160,255,0.4);
+    --accent: #4f8fff;
+    --accent2: #7b5ea7;
+    --accent3: #00e5ff;
+    --text: #e8eeff;
+    --text2: #8899cc;
+    --text3: #445577;
+    --success: #00e5a0;
+    --warn: #ffaa00;
+    --danger: #ff4466;
+    --glow: 0 0 30px rgba(79,143,255,0.15);
+    --glow-strong: 0 0 60px rgba(79,143,255,0.3);
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-code: 'Space Mono', monospace;
+    --radius: 16px;
+    --radius-sm: 8px;
+    --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .light-mode {
+    --bg: #f0f4ff;
+    --bg2: #e8eeff;
+    --surface: rgba(255,255,255,0.85);
+    --surface2: rgba(240,244,255,0.9);
+    --border: rgba(80,120,255,0.2);
+    --border-glow: rgba(80,120,255,0.5);
+    --text: #0a0e20;
+    --text2: #445588;
+    --text3: #8899bb;
+    --glow: 0 4px 20px rgba(79,143,255,0.1);
+    --glow-strong: 0 8px 40px rgba(79,143,255,0.2);
+  }
+
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background 0.4s, color 0.4s;
+  }
+
+  /* ── LOADER ── */
+  #loader {
+    position: fixed; inset: 0;
+    background: #050810;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  #loader.hide { opacity: 0; pointer-events: none; }
+  .loader-ring {
+    width: 80px; height: 80px;
+    border: 2px solid rgba(79,143,255,0.2);
+    border-top-color: #4f8fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  .loader-text {
+    margin-top: 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #4f8fff;
+    letter-spacing: 3px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+  /* ── CANVAS BACKGROUND ── */
+  #bg-canvas {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 16px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(5,8,16,0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    transition: var(--transition);
+  }
+  .nav-logo {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--text); }
+  .nav-links { display: flex; gap: 6px; align-items: center; }
+  .nav-link {
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--text2);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: var(--transition);
+    cursor: pointer;
+    border: none; background: none;
+  }
+  .nav-link:hover { color: var(--accent); background: rgba(79,143,255,0.08); }
+  .nav-controls { display: flex; gap: 10px; align-items: center; }
+  .btn-icon {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 16px;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+  }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
+
+  /* ── LAYOUT ── */
+  main { position: relative; z-index: 1; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 120px 24px 80px;
+    text-align: center;
+    position: relative;
+  }
+  .hero-content { max-width: 900px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px;
+    background: rgba(79,143,255,0.1);
+    border: 1px solid rgba(79,143,255,0.3);
+    border-radius: 100px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 32px;
+    animation: fadeInUp 0.8s ease both;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .hero-title {
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+    animation: fadeInUp 0.8s ease 0.1s both;
+  }
+  .hero-title .gradient-text {
+    background: linear-gradient(135deg, #4f8fff 0%, #7b5ea7 50%, #00e5ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-subtitle {
+    font-size: clamp(14px, 2vw, 18px);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-weight: 400;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    animation: fadeInUp 0.8s ease 0.2s both;
+  }
+  .hero-desc {
+    font-size: 16px;
+    color: var(--text2);
+    max-width: 600px;
+    margin: 0 auto 40px;
+    font-weight: 400;
+    animation: fadeInUp 0.8s ease 0.3s both;
+  }
+  .hero-ctas {
+    display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.4s both;
+  }
+  .btn-primary {
+    padding: 14px 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: var(--transition);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(79,143,255,0.4); }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-secondary {
+    padding: 14px 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); box-shadow: var(--glow); }
+
+  /* floating math symbols */
+  .math-float {
+    position: absolute;
+    font-family: var(--font-code);
+    color: rgba(79,143,255,0.15);
+    pointer-events: none;
+    user-select: none;
+    animation: floatSym 8s ease-in-out infinite;
+  }
+  @keyframes floatSym {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION ── */
+  .section { padding: 80px 0; }
+  .section-header { text-align: center; margin-bottom: 48px; }
+  .section-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+  .section-desc { font-size: 15px; color: var(--text2); max-width: 500px; margin: 12px auto 0; }
+
+  /* ── CARD ── */
+  .glass-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(20px);
+    transition: var(--transition);
+    overflow: hidden;
+  }
+  .glass-card:hover { border-color: var(--border-glow); box-shadow: var(--glow); }
+  .card-header {
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .card-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, rgba(79,143,255,0.2), rgba(123,94,167,0.2));
+    border: 1px solid rgba(79,143,255,0.3);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .card-title { font-size: 16px; font-weight: 700; }
+  .card-subtitle { font-size: 12px; color: var(--text2); font-family: var(--font-mono); margin-top: 2px; }
+  .card-body { padding: 24px 28px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--bg2); border-radius: 10px; padding: 4px; }
+  .tab {
+    flex: 1; padding: 8px 16px;
+    background: none; border: none;
+    border-radius: 7px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .tab.active { background: var(--accent); color: #fff; }
+  .tab:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.05); }
+
+  /* ── INPUT ── */
+  .input-group { margin-bottom: 16px; }
+  .input-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; color: var(--text2); margin-bottom: 6px; display: block; }
+  .input-field {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    transition: var(--transition);
+    outline: none;
+  }
+  .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,143,255,0.1); }
+  .input-row { display: flex; gap: 10px; align-items: flex-end; }
+  .input-row .input-group { flex: 1; margin-bottom: 0; }
+
+  /* ── RESULT BOX ── */
+  .result-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--success);
+    min-height: 60px;
+    transition: var(--transition);
+    overflow-x: auto;
+  }
+  .result-box.error { color: var(--danger); }
+  .result-box.info { color: var(--accent); }
+
+  .steps-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text2);
+    max-height: 240px;
+    overflow-y: auto;
+    line-height: 1.8;
+  }
+  .steps-box .step { color: var(--text); }
+  .steps-box .step span { color: var(--accent); }
+
+  /* ── MATRIX GRID ── */
+  .matrix-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .matrix-size-btn {
+    padding: 6px 14px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .matrix-size-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .matrix-grid { display: inline-grid; gap: 6px; margin-bottom: 16px; }
+  .matrix-cell {
+    width: 56px; height: 40px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    text-align: center;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    outline: none;
+    transition: var(--transition);
+  }
+  .matrix-cell:focus { border-color: var(--accent); }
+
+  /* ── FIB TREE ── */
+  #fib-tree-canvas {
+    width: 100%;
+    border-radius: var(--radius-sm);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+  }
+
+  /* ── COMPLEXITY CHART ── */
+  #complexity-canvas {
+    width: 100%;
+    border-radius: var(--radius-sm);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+  }
+
+  /* ── SORT VIZ ── */
+  #sort-canvas {
+    width: 100%;
+    border-radius: var(--radius-sm);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+  }
+
+  /* ── GRID LAYOUTS ── */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+
+  /* ── METRICS ── */
+  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+  }
+  .metric-card:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+  .metric-value {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .metric-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; color: var(--text2); }
+
+  /* ── SHOWCASE CARDS ── */
+  .showcase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .showcase-card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(79,143,255,0.05), transparent);
+    opacity: 0;
+    transition: var(--transition);
+  }
+  .showcase-card:hover::after { opacity: 1; }
+  .showcase-card:hover { border-color: var(--border-glow); transform: translateY(-4px); box-shadow: var(--glow); }
+  .showcase-icon { font-size: 32px; margin-bottom: 16px; }
+  .showcase-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .showcase-desc { font-size: 13px; color: var(--text2); line-height: 1.7; }
+  .showcase-tag {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 3px 10px;
+    background: rgba(79,143,255,0.1);
+    border: 1px solid rgba(79,143,255,0.2);
+    border-radius: 100px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  /* ── COMPLEXITY BADGES ── */
+  .complexity-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    border: 1px solid;
+  }
+  .o1 { background: rgba(0,229,160,0.1); border-color: rgba(0,229,160,0.3); color: var(--success); }
+  .ologn { background: rgba(0,229,255,0.1); border-color: rgba(0,229,255,0.3); color: var(--accent3); }
+  .on { background: rgba(79,143,255,0.1); border-color: rgba(79,143,255,0.3); color: var(--accent); }
+  .onlogn { background: rgba(255,170,0,0.1); border-color: rgba(255,170,0,0.3); color: var(--warn); }
+  .on2 { background: rgba(255,100,50,0.1); border-color: rgba(255,100,50,0.3); color: #ff6432; }
+  .o2n { background: rgba(255,68,102,0.1); border-color: rgba(255,68,102,0.3); color: var(--danger); }
+
+  /* ── HISTORY ── */
+  .history-list { max-height: 300px; overflow-y: auto; }
+  .history-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .history-item:hover { border-color: var(--accent); }
+  .history-item .hist-op { color: var(--accent); }
+  .history-item .hist-result { color: var(--success); }
+  .history-item .hist-time { color: var(--text3); font-size: 10px; }
+
+  /* ── WHY MATTERS ── */
+  .why-section {
+    background: linear-gradient(135deg, rgba(79,143,255,0.05), rgba(123,94,167,0.05));
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 60px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .why-section::before {
+    content: '';
+    position: absolute; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(ellipse at center, rgba(79,143,255,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  .why-item { display: flex; gap: 14px; }
+  .why-num {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .why-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .why-text p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* ── KEYBOARD SHORTCUTS ── */
+  kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 2px 7px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 30px; right: 30px;
+    padding: 12px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border-glow);
+    border-radius: 10px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text);
+    backdrop-filter: blur(20px);
+    z-index: 1000;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: var(--glow-strong);
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 24px;
+    text-align: center;
+    background: var(--bg2);
+    position: relative; z-index: 1;
+  }
+  .footer-links { display: flex; gap: 24px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .footer-link {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text2);
+    text-decoration: none;
+    transition: var(--transition);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .footer-link:hover { color: var(--accent); }
+  .footer-copy { font-size: 12px; color: var(--text3); font-family: var(--font-mono); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: rgba(79,143,255,0.3); border-radius: 2px; }
+
+  /* ── ANIMATED BORDER ── */
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute; inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3), var(--accent));
+    background-size: 300%;
+    animation: borderAnim 4s linear infinite;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .gradient-border:hover::before { opacity: 1; }
+  @keyframes borderAnim { to { background-position: 300%; } }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar-wrap { height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+  .progress-bar { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+
+  /* ── SECTION DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0;
+  }
+
+  /* ── SORT CONTROLS ── */
+  .sort-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  .sort-btn {
+    padding: 7px 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .sort-btn.active { background: rgba(79,143,255,0.15); border-color: var(--accent); color: var(--accent); }
+  .sort-btn:hover:not(.active) { border-color: var(--text3); color: var(--text); }
+
+  /* responsive nav */
+  @media (max-width: 768px) {
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+    .hero-ctas { flex-direction: column; align-items: center; }
+    .card-body { padding: 16px; }
+    .card-header { padding: 16px; }
+    .why-section { padding: 32px 24px; }
+    .matrix-cell { width: 44px; }
+  }
+
+  /* ── ONBOARDING ── */
+  #onboarding {
+    position: fixed; inset: 0;
+    background: rgba(5,8,16,0.9);
+    backdrop-filter: blur(10px);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  #onboarding.show { opacity: 1; pointer-events: all; }
+  .onboard-card {
+    background: var(--surface);
+    border: 1px solid var(--border-glow);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--glow-strong);
+  }
+  .onboard-emoji { font-size: 48px; margin-bottom: 20px; }
+  .onboard-title { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+  .onboard-desc { font-size: 14px; color: var(--text2); margin-bottom: 28px; line-height: 1.7; }
+  .onboard-shortcuts { text-align: left; background: var(--bg2); border-radius: 10px; padding: 16px; margin-bottom: 24px; }
+  .onboard-shortcut { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: var(--text2); }
+  .onboard-shortcut:last-child { margin-bottom: 0; }
+
+  /* ── ANIMATIONS ── */
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .scroll-reveal.visible { opacity: 1; transform: none; }
+
+  /* ── BINARY RESULT ── */
+  .binary-display {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--accent);
+    letter-spacing: 4px;
+    word-break: break-all;
+  }
+
+  /* ── PASCAL TRIANGLE ── */
+  .pascal-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 4px; }
+  .pascal-cell {
+    min-width: 32px; height: 28px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text);
+    transition: var(--transition);
+  }
+  .pascal-cell:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── NxN INPUT ── */
+  .nxn-row { display: flex; gap: 6px; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-text">INITIALIZING COMPUTE ENGINE...</div>
+</div>
+
+<!-- Particle Canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Onboarding Modal -->
+<div id="onboarding">
+  <div class="onboard-card">
+    <div class="onboard-emoji">🧠</div>
+    <div class="onboard-title">Welcome to AIC</div>
+    <div class="onboard-desc">A portfolio-grade computational mathematics platform. Explore matrix algebra, recursive algorithms, sorting visualizations, and more.</div>
+    <div class="onboard-shortcuts">
+      <div class="onboard-shortcut"><span>Toggle dark/light mode</span><kbd>Alt + T</kbd></div>
+      <div class="onboard-shortcut"><span>Show this tour</span><kbd>Alt + H</kbd></div>
+      <div class="onboard-shortcut"><span>Export history</span><kbd>Alt + E</kbd></div>
+      <div class="onboard-shortcut"><span>Scroll to top</span><kbd>Alt + ↑</kbd></div>
+    </div>
+    <button class="btn-primary" onclick="closeOnboarding()" style="width:100%">Launch Platform →</button>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <a class="nav-logo" href="#hero">AIC <span>// v2.0</span></a>
+  <div class="nav-links">
+    <button class="nav-link" onclick="scrollTo('matrix')">Matrix</button>
+    <button class="nav-link" onclick="scrollTo('fibonacci')">Fibonacci</button>
+    <button class="nav-link" onclick="scrollTo('complexity')">Complexity</button>
+    <button class="nav-link" onclick="scrollTo('playground')">Playground</button>
+    <button class="nav-link" onclick="scrollTo('sorting')">Sorting</button>
+    <button class="nav-link" onclick="scrollTo('history')">History</button>
+  </div>
+  <div class="nav-controls">
+    <button class="btn-icon" title="Keyboard shortcuts (Alt+H)" onclick="showOnboarding()">⌨️</button>
+    <button class="btn-icon" title="Toggle theme (Alt+T)" onclick="toggleTheme()" id="theme-btn">🌙</button>
+    <button class="btn-icon" title="Export history (Alt+E)" onclick="exportHistory()">📥</button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <!-- Floating math symbols -->
+  <div class="math-float" style="top:15%;left:8%;font-size:28px;animation-delay:0s">∑</div>
+  <div class="math-float" style="top:25%;right:10%;font-size:22px;animation-delay:1s">∫</div>
+  <div class="math-float" style="top:60%;left:5%;font-size:20px;animation-delay:2s">λ</div>
+  <div class="math-float" style="top:70%;right:8%;font-size:26px;animation-delay:0.5s">∞</div>
+  <div class="math-float" style="top:40%;left:3%;font-size:18px;animation-delay:1.5s">Δ</div>
+  <div class="math-float" style="top:80%;left:15%;font-size:24px;animation-delay:3s">π</div>
+  <div class="math-float" style="top:20%;right:4%;font-size:20px;animation-delay:2.5s">√</div>
+  <div class="math-float" style="top:50%;right:3%;font-size:22px;animation-delay:4s">θ</div>
+
+  <div class="hero-content">
+    <div class="hero-badge">PORTFOLIO PROJECT · CS & AI ENGINEERING</div>
+    <h1 class="hero-title">
+      Algorithmic<br><span class="gradient-text">Intelligence</span><br>Calculator
+    </h1>
+    <p class="hero-subtitle">Advanced Computational Mathematics · Algorithm Design · Recursive Logic Engine</p>
+    <p class="hero-desc">A portfolio-grade mathematical computing platform demonstrating algorithmic problem solving, recursion, matrix computation, and computational thinking at university level.</p>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="scrollTo('matrix')">Explore Features →</button>
+      <button class="btn-secondary" onclick="showOnboarding()">View Shortcuts</button>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ MATRIX SOLVER ═══ -->
+<section class="section" id="matrix">
+  <div class="container">
+    <div class="section-header scroll-reveal">
+      <div class="section-tag">// MODULE 01</div>
+      <h2 class="section-title">Matrix Determinant Solver</h2>
+      <p class="section-desc">Compute determinants for 2×2, 3×3, and NxN matrices with step-by-step Gaussian elimination.</p>
+    </div>
+    <div class="glass-card gradient-border scroll-reveal">
+      <div class="card-header">
+        <div class="card-icon">⬛</div>
+        <div>
+          <div class="card-title">Visual Matrix Editor</div>
+          <div class="card-subtitle">det(A) computation with full working</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="matrix-controls">
+          <span style="font-size:13px;color:var(--text2);font-family:var(--font-mono);">SIZE:</span>
+          <button class="matrix-size-btn active" onclick="setMatrixSize(2)">2×2</button>
+          <button class="matrix-size-btn" onclick="setMatrixSize(3)">3×3</button>
+          <button class="matrix-size-btn" onclick="setMatrixSize(4)">4×4</button>
+        </div>
+        <div id="matrix-grid-wrap">
+          <div class="matrix-grid" id="matrix-grid" style="grid-template-columns: repeat(2, 56px);"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+          <button class="btn-primary" onclick="solveMatrix()">Calculate Determinant</button>
+          <button class="btn-secondary" onclick="randomizeMatrix()">Randomize</button>
+          <button class="btn-secondary" onclick="clearMatrix()">Clear</button>
+        </div>
+        <div style="margin-top:20px;">
+          <div class="input-label">RESULT</div>
+          <div class="result-box" id="matrix-result">Enter values and click Calculate.</div>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="input-label">STEP-BY-STEP WORKING</div>
+          <div class="steps-box" id="matrix-steps">Steps will appear here...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ FIBONACCI ═══ -->
+<section class="section" id="fibonacci">
+  <div class="container">
+    <div class="section-header scroll-reveal">
+      <div class="section-tag">// MODULE 02</div>
+      <h2 class="section-title">Recursive Fibonacci Engine</h2>
+      <p class="section-desc">Visualize recursive call trees, compare naive vs dynamic programming, and analyze time complexity.</p>
+    </div>
+    <div class="grid-2">
+      <div class="glass-card gradient-border scroll-reveal">
+        <div class="card-header">
+          <div class="card-icon">🌿</div>
+          <div>
+            <div class="card-title">Fibonacci Calculator</div>
+            <div class="card-subtitle">Recursive vs DP comparison</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="tabs">
+            <button class="tab active" onclick="setFibTab('recursive',this)">Recursive</button>
+            <button class="tab" onclick="setFibTab('dp',this)">Dynamic Programming</button>
+            <button class="tab" onclick="setFibTab('both',this)">Compare</button>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <label class="input-label">ENTER N (1–30)</label>
+              <input class="input-field" type="number" id="fib-n" value="8" min="1" max="30">
+            </div>
+            <button class="btn-primary" style="height:40px;white-space:nowrap;" onclick="computeFib()">Compute</button>
+          </div>
+          <div style="margin-top:16px;">
+            <div class="input-label">RESULT</div>
+            <div class="result-box" id="fib-result">—</div>
+          </div>
+          <div style="margin-top:12px;">
+            <div class="input-label">COMPLEXITY ANALYSIS</div>
+            <div class="steps-box" id="fib-steps" style="max-height:180px;"></div>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="complexity-badge o2n">O(2ⁿ) Recursive</span>
+            <span class="complexity-badge on">O(n) DP</span>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card scroll-reveal">
+        <div class="card-header">
+          <div class="card-icon">🌲</div>
+          <div>
+            <div class="card-title">Recursion Tree</div>
+            <div class="card-subtitle">Call stack visualization</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding:16px;">
+          <canvas id="fib-tree-canvas" height="300"></canvas>
+          <div style="margin-top:10px;font-family:var(--font-mono);font-size:11px;color:var(--text3);text-align:center;">
+            CALL TREE — nodes represent recursive calls
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ COMPLEXITY ═══ -->
+<section class="section" id="complexity">
+  <div class="container">
+    <div class="section-header scroll-reveal">
+      <div class="section-tag">// MODULE 03</div>
+      <h2 class="section-title">Algorithm Complexity Analyzer</h2>
+      <p class="section-desc">Visual comparison of Big-O complexity classes with interactive graph rendering.</p>
+    </div>
+    <div class="glass-card gradient-border scroll-reveal">
+      <div class="card-header">
+        <div class="card-icon">📈</div>
+        <div>
+          <div class="card-title">Big-O Comparison Chart</div>
+          <div class="card-subtitle">Interactive complexity visualization</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;" id="complexity-toggles">
+          <button class="sort-btn active" data-fn="o1" onclick="toggleComplexity('o1',this)">O(1)</button>
+          <button class="sort-btn active" data-fn="ologn" onclick="toggleComplexity('ologn',this)">O(log n)</button>
+          <button class="sort-btn active" data-fn="on" onclick="toggleComplexity('on',this)">O(n)</button>
+          <button class="sort-btn active" data-fn="onlogn" onclick="toggleComplexity('onlogn',this)">O(n log n)</button>
+          <button class="sort-btn active" data-fn="on2" onclick="toggleComplexity('on2',this)">O(n²)</button>
+          <button class="sort-btn active" data-fn="o2n" onclick="toggleComplexity('o2n',this)">O(2ⁿ)</button>
+        </div>
+        <canvas id="complexity-canvas" height="360"></canvas>
+        <div style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+          <div style="padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);">CONSTANT</div>
+            <div class="complexity-badge o1" style="margin-top:6px;">O(1)</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:8px;">Array access, hash lookup</div>
+          </div>
+          <div style="padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);">LOGARITHMIC</div>
+            <div class="complexity-badge ologn" style="margin-top:6px;">O(log n)</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:8px;">Binary search, balanced BST</div>
+          </div>
+          <div style="padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);">LINEAR</div>
+            <div class="complexity-badge on" style="margin-top:6px;">O(n)</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:8px;">Linear search, array traversal</div>
+          </div>
+          <div style="padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);">LINEARITHMIC</div>
+            <div class="complexity-badge onlogn" style="margin-top:6px;">O(n log n)</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:8px;">Merge sort, heap sort</div>
+          </div>
+          <div style="padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);">QUADRATIC</div>
+            <div class="complexity-badge on2" style="margin-top:6px;">O(n²)</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:8px;">Bubble sort, nested loops</div>
+          </div>
+          <div style="padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);">EXPONENTIAL</div>
+            <div class="complexity-badge o2n" style="margin-top:6px;">O(2ⁿ)</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:8px;">Naive Fibonacci, power set</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ PLAYGROUND ═══ -->
+<section class="section" id="playground">
+  <div class="container">
+    <div class="section-header scroll-reveal">
+      <div class="section-tag">// MODULE 04</div>
+      <h2 class="section-title">Mathematical Playground</h2>
+      <p class="section-desc">Number theory utilities, prime generation, Pascal's triangle, and more.</p>
+    </div>
+    <div class="grid-2">
+
+      <!-- Prime Generator -->
+      <div class="glass-card gradient-border scroll-reveal">
+        <div class="card-header">
+          <div class="card-icon">🔢</div>
+          <div><div class="card-title">Prime Number Generator</div><div class="card-subtitle">Sieve of Eratosthenes</div></div>
+        </div>
+        <div class="card-body">
+          <div class="input-row">
+            <div class="input-group"><label class="input-label">UPPER BOUND (max 500)</label><input class="input-field" type="number" id="prime-n" value="50" min="2" max="500"></div>
+            <button class="btn-primary" style="height:40px;" onclick="generatePrimes()">Generate</button>
+          </div>
+          <div style="margin-top:14px;"><div class="input-label">PRIMES FOUND</div><div class="result-box" id="prime-result" style="font-size:12px;line-height:1.8;color:var(--accent3);min-height:80px;"></div></div>
+          <div id="prime-count" style="font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:8px;"></div>
+        </div>
+      </div>
+
+      <!-- GCD / LCM -->
+      <div class="glass-card gradient-border scroll-reveal">
+        <div class="card-header">
+          <div class="card-icon">🔗</div>
+          <div><div class="card-title">GCD & LCM Calculator</div><div class="card-subtitle">Euclidean algorithm</div></div>
+        </div>
+        <div class="card-body">
+          <div class="input-row">
+            <div class="input-group"><label class="input-label">NUMBER A</label><input class="input-field" type="number" id="gcd-a" value="48"></div>
+            <div class="input-group"><label class="input-label">NUMBER B</label><input class="input-field" type="number" id="gcd-b" value="36"></div>
+            <button class="btn-primary" style="height:40px;" onclick="calcGCDLCM()">Calc</button>
+          </div>
+          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><div class="input-label">GCD</div><div class="result-box" id="gcd-result">—</div></div>
+            <div><div class="input-label">LCM</div><div class="result-box" id="lcm-result">—</div></div>
+          </div>
+          <div style="margin-top:10px;"><div class="steps-box" id="gcd-steps" style="max-height:120px;"></div></div>
+        </div>
+      </div>
+
+      <!-- Factorial -->
+      <div class="glass-card gradient-border scroll-reveal">
+        <div class="card-header">
+          <div class="card-icon">❗</div>
+          <div><div class="card-title">Factorial Calculator</div><div class="card-subtitle">n! with BigInt precision</div></div>
+        </div>
+        <div class="card-body">
+          <div class="input-row">
+            <div class="input-group"><label class="input-label">ENTER n (max 100)</label><input class="input-field" type="number" id="fact-n" value="10" min="0" max="100"></div>
+            <button class="btn-primary" style="height:40px;" onclick="calcFactorial()">Calc</button>
+          </div>
+          <div style="margin-top:14px;"><div class="input-label">n! RESULT</div><div class="result-box" id="fact-result" style="font-size:12px;word-break:break-all;color:var(--success);">—</div></div>
+          <div id="fact-digits" style="font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:8px;"></div>
+        </div>
+      </div>
+
+      <!-- Binary Converter -->
+      <div class="glass-card gradient-border scroll-reveal">
+        <div class="card-header">
+          <div class="card-icon">💻</div>
+          <div><div class="card-title">Number Base Converter</div><div class="card-subtitle">Binary · Octal · Hex · Decimal</div></div>
+        </div>
+        <div class="card-body">
+          <div class="input-row">
+            <div class="input-group"><label class="input-label">DECIMAL INPUT</label><input class="input-field" type="number" id="bin-n" value="255" min="0"></div>
+            <button class="btn-primary" style="height:40px;" onclick="convertBase()">Convert</button>
+          </div>
+          <div style="margin-top:14px;display:grid;gap:8px;">
+            <div><div class="input-label">BINARY (BASE 2)</div><div class="result-box binary-display" id="bin-result">—</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div><div class="input-label">OCTAL (BASE 8)</div><div class="result-box" id="oct-result" style="color:var(--warn);">—</div></div>
+              <div><div class="input-label">HEX (BASE 16)</div><div class="result-box" id="hex-result" style="color:var(--accent3);">—</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pascal Triangle -->
+      <div class="glass-card gradient-border scroll-reveal" style="grid-column:1/-1;">
+        <div class="card-header">
+          <div class="card-icon">🔺</div>
+          <div><div class="card-title">Pascal's Triangle Generator</div><div class="card-subtitle">Binomial coefficients — C(n,k)</div></div>
+        </div>
+        <div class="card-body">
+          <div class="input-row">
+            <div class="input-group"><label class="input-label">ROWS (max 12)</label><input class="input-field" type="number" id="pascal-n" value="7" min="1" max="12"></div>
+            <button class="btn-primary" style="height:40px;" onclick="generatePascal()">Generate</button>
+          </div>
+          <div id="pascal-output" style="margin-top:16px;overflow-x:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ SORTING VISUALIZER ═══ -->
+<section class="section" id="sorting">
+  <div class="container">
+    <div class="section-header scroll-reveal">
+      <div class="section-tag">// MODULE 05</div>
+      <h2 class="section-title">Algorithm Visualization Center</h2>
+      <p class="section-desc">Animated sorting visualizations with runtime comparison and step counters.</p>
+    </div>
+    <div class="glass-card gradient-border scroll-reveal">
+      <div class="card-header">
+        <div class="card-icon">🔀</div>
+        <div><div class="card-title">Sorting Algorithm Visualizer</div><div class="card-subtitle">Bubble · Merge · Quick · Search</div></div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+          <div class="sort-controls" id="sort-algo-btns">
+            <button class="sort-btn active" onclick="selectSort('bubble',this)">Bubble Sort</button>
+            <button class="sort-btn" onclick="selectSort('merge',this)">Merge Sort</button>
+            <button class="sort-btn" onclick="selectSort('quick',this)">Quick Sort</button>
+            <button class="sort-btn" onclick="selectSort('linear',this)">Linear Search</button>
+            <button class="sort-btn" onclick="selectSort('binary',this)">Binary Search</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+          <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label">ARRAY SIZE</label>
+            <input class="input-field" type="number" id="sort-size" value="30" min="5" max="60" style="width:100px;">
+          </div>
+          <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label">SPEED (ms)</label>
+            <input class="input-field" type="number" id="sort-speed" value="80" min="10" max="500" style="width:100px;">
+          </div>
+          <button class="btn-primary" onclick="startSort()" id="sort-start-btn">▶ Start</button>
+          <button class="btn-secondary" onclick="resetSort()">↺ New Array</button>
+          <div id="sort-stats" style="font-family:var(--font-mono);font-size:12px;color:var(--text2);"></div>
+        </div>
+        <canvas id="sort-canvas" height="280"></canvas>
+        <div id="sort-info" style="margin-top:12px;font-family:var(--font-mono);font-size:12px;color:var(--text2);"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ SHOWCASE ═══ -->
+<section class="section" id="showcase">
+  <div class="container">
+    <div class="section-header scroll-reveal">
+      <div class="section-tag">// CS FUNDAMENTALS</div>
+      <h2 class="section-title">Computational Thinking<br>Demonstration</h2>
+      <p class="section-desc">Core concepts of computer science and algorithmic thinking visualized and explained.</p>
+    </div>
+    <div class="grid-3">
+      <div class="showcase-card scroll-reveal">
+        <div class="showcase-icon">🔁</div>
+        <div class="showcase-title">Recursive Problem Solving</div>
+        <div class="showcase-desc">Recursion breaks complex problems into self-similar subproblems. This platform demonstrates base cases, recursive calls, and call stack depth through live Fibonacci trees and step-by-step traces.</div>
+        <span class="showcase-tag">T(n) = T(n-1) + T(n-2)</span>
+      </div>
+      <div class="showcase-card scroll-reveal">
+        <div class="showcase-icon">🧮</div>
+        <div class="showcase-title">Matrix Mathematics</div>
+        <div class="showcase-desc">Determinants form the backbone of linear algebra — from solving systems of equations to 3D transformations. Gaussian elimination reduces any NxN matrix through row operations with full working shown.</div>
+        <span class="showcase-tag">det(A) via cofactor expansion</span>
+      </div>
+      <div class="showcase-card scroll-reveal">
+        <div class="showcase-icon">⚙️</div>
+        <div class="showcase-title">Algorithm Design</div>
+        <div class="showcase-desc">Sorting algorithms illustrate the tradeoffs between simplicity (Bubble O(n²)) and efficiency (Merge O(n log n)). Visual bars animate comparisons, swaps, and pivots in real time.</div>
+        <span class="showcase-tag">divide & conquer · in-place</span>
+      </div>
+      <div class="showcase-card scroll-reveal">
+        <div class="showcase-icon">⚡</div>
+        <div class="showcase-title">Optimization Techniques</div>
+        <div class="showcase-desc">Dynamic programming memoizes overlapping subproblems. The Fibonacci DP demo reduces 2ⁿ calls to O(n) by caching intermediate results — a foundational optimization concept in CS.</div>
+        <span class="showcase-tag">memoization · tabulation</span>
+      </div>
+      <div class="showcase-card scroll-reveal">
+        <div class="showcase-icon">🗃️</div>
+        <div class="showcase-title">Data Structures Foundations</div>
+        <div class="showcase-desc">Arrays underlie sorting visualizations; stacks model recursive call depth; trees represent Fibonacci call graphs. Each feature intentionally demonstrates a core data structure in action.</div>
+        <span class="showcase-tag">arrays · stacks · trees</span>
+      </div>
+      <div class="showcase-card scroll-reveal">
+        <div class="showcase-icon">📊</div>
+        <div class="showcase-title">Computational Complexity</div>
+        <div class="showcase-desc">Big-O notation quantifies how algorithms scale. The interactive chart plots six complexity classes simultaneously, making the catastrophic growth of exponential algorithms immediately intuitive.</div>
+        <span class="showcase-tag">O(1) → O(2ⁿ)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ METRICS ═══ -->
+<section class="section" id="metrics">
+  <div class="container">
+    <div class="section-header scroll-reveal">
+      <div class="section-tag">// PLATFORM METRICS</div>
+      <h2 class="section-title">By The Numbers</h2>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card scroll-reveal">
+        <div class="metric-value" data-target="12" id="m1">0</div>
+        <div class="metric-label">ALGORITHMS IMPLEMENTED</div>
+      </div>
+      <div class="metric-card scroll-reveal">
+        <div class="metric-value" data-target="8" id="m2">0</div>
+        <div class="metric-label">MATH FUNCTIONS SOLVED</div>
+      </div>
+      <div class="metric-card scroll-reveal">
+        <div class="metric-value" data-target="6" id="m3">0</div>
+        <div class="metric-label">COMPLEXITY MODELS</div>
+      </div>
+      <div class="metric-card scroll-reveal">
+        <div class="metric-value" data-target="30" id="m4">0</div>
+        <div class="metric-label">FIB RECURSION DEPTH</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ WHY THIS PROJECT ═══ -->
+<section class="section" id="why">
+  <div class="container">
+    <div class="section-header scroll-reveal">
+      <div class="section-tag">// PROJECT SIGNIFICANCE</div>
+      <h2 class="section-title">Why This Project Matters</h2>
+      <p class="section-desc">A technical showcase demonstrating core computer science principles through interactive implementation.</p>
+    </div>
+    <div class="why-section scroll-reveal">
+      <div class="why-grid">
+        <div class="why-item"><div class="why-num">01</div><div class="why-text"><h4>Computational Reasoning</h4><p>Every module is grounded in mathematical proof — from Gaussian elimination to the Euclidean GCD algorithm, solutions are derived, not approximated.</p></div></div>
+        <div class="why-item"><div class="why-num">02</div><div class="why-text"><h4>Mathematical Problem Solving</h4><p>Exposes the student's comfort with linear algebra, number theory, combinatorics (Pascal's Triangle), and modular arithmetic through working implementations.</p></div></div>
+        <div class="why-item"><div class="why-num">03</div><div class="why-text"><h4>Algorithmic Thinking</h4><p>Each feature required choosing the right algorithm for the task — Sieve of Eratosthenes for primes, divide-and-conquer for merge sort, backtracking for recursion trees.</p></div></div>
+        <div class="why-item"><div class="why-num">04</div><div class="why-text"><h4>Recursive Logic</h4><p>Fibonacci's call tree and the matrix cofactor recursion both demonstrate deep understanding of base cases, recursive depth, and stack management.</p></div></div>
+        <div class="why-item"><div class="why-num">05</div><div class="why-text"><h4>Software Engineering Principles</h4><p>Built with vanilla ES6, modular functions, no external dependencies — demonstrating understanding of DOM, Canvas API, state management, and animation loops.</p></div></div>
+        <div class="why-item"><div class="why-num">06</div><div class="why-text"><h4>Applied Data Structures</h4><p>Sorting visualizer directly demonstrates array manipulation; recursion tree uses a node/edge tree structure built from scratch to visualize call graphs.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ HISTORY ═══ -->
+<section class="section" id="history">
+  <div class="container">
+    <div class="section-header scroll-reveal">
+      <div class="section-tag">// SESSION LOG</div>
+      <h2 class="section-title">Calculation History</h2>
+    </div>
+    <div class="glass-card scroll-reveal">
+      <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div><div class="card-title">Session Calculations</div><div class="card-subtitle">All computations this session</div></div>
+        <button class="btn-secondary" style="margin-left:auto;padding:6px 14px;font-size:12px;" onclick="clearHistory()">Clear</button>
+      </div>
+      <div class="card-body">
+        <div class="history-list" id="history-list">
+          <div style="font-family:var(--font-mono);font-size:13px;color:var(--text3);text-align:center;padding:30px;">No calculations yet. Use a module above.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-links">
+    <a class="footer-link" href="https://github.com" target="_blank">⌥ GitHub</a>
+    <a class="footer-link" href="#" onclick="showOnboarding()">⌘ Shortcuts</a>
+    <a class="footer-link" href="#hero">↑ Back to Top</a>
+    <a class="footer-link" href="#" onclick="exportHistory()">📥 Export History</a>
+  </div>
+  <div class="footer-copy">Algorithmic Intelligence Calculator &copy; 2025 · Built with ES6 · No Frameworks</div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  GLOBAL STATE
+// ═══════════════════════════════════════════════════════
+let matrixSize = 2;
+let fibTab = 'recursive';
+let complexityEnabled = { o1:true, ologn:true, on:true, onlogn:true, on2:true, o2n:true };
+let currentSort = 'bubble';
+let sortArray = [];
+let sortRunning = false;
+let sortAnimFrame = null;
+let calcHistory = [];
+let isLightMode = false;
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hide');
+    setTimeout(() => { document.getElementById('onboarding').classList.add('show'); }, 400);
+  }, 1800);
+
+  initParticles();
+  buildMatrix(2);
+  resetSort();
+  drawComplexityChart();
+  initScrollReveal();
+  initScrollCounter();
+  computeFib();
+  convertBase();
+  generatePrimes();
+  calcGCDLCM();
+  calcFactorial();
+  generatePascal();
+});
+
+// ═══════════════════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════════════════
+function initParticles() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles;
+
+  const symbols = ['∑','∫','λ','∞','Δ','π','√','θ','∂','∇','α','β','Ω','φ','ψ','⊕','×','÷'];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function createParticles() {
+    particles = Array.from({length:60}, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random()-0.5)*0.3,
+      vy: (Math.random()-0.5)*0.3,
+      alpha: Math.random()*0.12+0.03,
+      size: Math.random()*10+8,
+      sym: symbols[Math.floor(Math.random()*symbols.length)],
+      r: Math.random()*W*0.4
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    const isDark = !isLightMode;
+
+    // connections
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(79,143,255,${0.04*(1-dist/120)})`;
+          ctx.lineWidth=0.5;
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // symbols
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0) p.x=W; if(p.x>W) p.x=0;
+      if(p.y<0) p.y=H; if(p.y>H) p.y=0;
+      ctx.font=`${p.size}px 'Space Mono'`;
+      ctx.fillStyle=`rgba(79,143,255,${p.alpha})`;
+      ctx.fillText(p.sym, p.x, p.y);
+    });
+    requestAnimationFrame(draw);
+  }
+
+  resize(); createParticles(); draw();
+  window.addEventListener('resize', ()=>{ resize(); createParticles(); });
+}
+
+// ═══════════════════════════════════════════════════════
+//  THEME
+// ═══════════════════════════════════════════════════════
+function toggleTheme() {
+  isLightMode = !isLightMode;
+  document.body.classList.toggle('light-mode', isLightMode);
+  document.getElementById('theme-btn').textContent = isLightMode ? '☀️' : '🌙';
+  document.querySelector('nav').style.background = isLightMode ? 'rgba(240,244,255,0.85)' : 'rgba(5,8,16,0.7)';
+  showToast(isLightMode ? 'Light mode activated' : 'Dark mode activated');
+  setTimeout(()=>{ drawComplexityChart(); drawFibTree(parseInt(document.getElementById('fib-n').value)||8); }, 100);
+}
+
+// ═══════════════════════════════════════════════════════
+//  ONBOARDING
+// ═══════════════════════════════════════════════════════
+function showOnboarding() { document.getElementById('onboarding').classList.add('show'); }
+function closeOnboarding() { document.getElementById('onboarding').classList.remove('show'); }
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCROLL
+// ═══════════════════════════════════════════════════════
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function initScrollReveal() {
+  const els = document.querySelectorAll('.scroll-reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }});
+  }, { threshold: 0.1 });
+  els.forEach(el => io.observe(el));
+}
+
+function initScrollCounter() {
+  const metrics = document.querySelectorAll('.metric-value[data-target]');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting) {
+        const target = parseInt(e.target.dataset.target);
+        animateCounter(e.target, target);
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:0.5});
+  metrics.forEach(m => io.observe(m));
+}
+
+function animateCounter(el, target) {
+  let current = 0;
+  const step = target / 40;
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = Math.floor(current);
+    if(current >= target) clearInterval(timer);
+  }, 30);
+}
+
+// ═══════════════════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════════════════
+function addHistory(op, result) {
+  calcHistory.unshift({ op, result, time: new Date().toLocaleTimeString() });
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if(calcHistory.length === 0) {
+    list.innerHTML = '<div style="font-family:var(--font-mono);font-size:13px;color:var(--text3);text-align:center;padding:30px;">No calculations yet.</div>';
+    return;
+  }
+  list.innerHTML = calcHistory.slice(0,20).map(h => `
+    <div class="history-item">
+      <span class="hist-op">${h.op}</span>
+      <span class="hist-result">= ${h.result}</span>
+      <span class="hist-time">${h.time}</span>
+    </div>
+  `).join('');
+}
+
+function clearHistory() {
+  calcHistory = [];
+  renderHistory();
+  showToast('History cleared');
+}
+
+function exportHistory() {
+  if(calcHistory.length === 0) { showToast('No history to export'); return; }
+  const text = calcHistory.map(h => `[${h.time}] ${h.op} = ${h.result}`).join('\n');
+  const blob = new Blob([`Algorithmic Intelligence Calculator — Session History\n${'='.repeat(50)}\n${text}`], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'aic-history.txt';
+  a.click();
+  showToast('History exported!');
+}
+
+// ═══════════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if(e.altKey) {
+    if(e.key==='t'||e.key==='T') { e.preventDefault(); toggleTheme(); }
+    if(e.key==='h'||e.key==='H') { e.preventDefault(); showOnboarding(); }
+    if(e.key==='e'||e.key==='E') { e.preventDefault(); exportHistory(); }
+    if(e.key==='ArrowUp') { e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}); }
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+//  MATRIX SOLVER
+// ═══════════════════════════════════════════════════════
+function setMatrixSize(n) {
+  matrixSize = n;
+  document.querySelectorAll('.matrix-size-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  buildMatrix(n);
+}
+
+function buildMatrix(n) {
+  const grid = document.getElementById('matrix-grid');
+  grid.style.gridTemplateColumns = `repeat(${n}, ${n<=3?'56px':'44px'})`;
+  grid.innerHTML = '';
+  for(let i=0;i<n;i++) for(let j=0;j<n;j++) {
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'matrix-cell';
+    inp.value = (i===j) ? 1 : 0;
+    inp.id = `cell_${i}_${j}`;
+    grid.appendChild(inp);
+  }
+  document.getElementById('matrix-result').textContent = 'Enter values and click Calculate.';
+  document.getElementById('matrix-steps').textContent = 'Steps will appear here...';
+}
+
+function getMatrix(n) {
+  const M = [];
+  for(let i=0;i<n;i++) {
+    M[i] = [];
+    for(let j=0;j<n;j++) M[i][j] = parseFloat(document.getElementById(`cell_${i}_${j}`).value)||0;
+  }
+  return M;
+}
+
+function randomizeMatrix() {
+  for(let i=0;i<matrixSize;i++) for(let j=0;j<matrixSize;j++) {
+    const el = document.getElementById(`cell_${i}_${j}`);
+    if(el) el.value = Math.floor(Math.random()*19)-9;
+  }
+  showToast('Matrix randomized');
+}
+
+function clearMatrix() { buildMatrix(matrixSize); }
+
+function solveMatrix() {
+  const n = matrixSize;
+  const M = getMatrix(n);
+  const steps = [];
+  let det;
+
+  if(n===2) {
+    det = det2x2(M, steps);
+  } else if(n===3) {
+    det = det3x3(M, steps);
+  } else {
+    det = detNxN(M, steps, n);
+  }
+
+  const resEl = document.getElementById('matrix-result');
+  resEl.className = 'result-box';
+  resEl.textContent = `det(A) = ${formatNum(det)}`;
+  document.getElementById('matrix-steps').innerHTML = steps.join('<br>');
+  addHistory(`det(${n}×${n} matrix)`, formatNum(det));
+}
+
+function formatNum(n) {
+  if(Number.isFinite(n)) return Math.abs(n)<0.0001 && n!==0 ? n.toExponential(4) : parseFloat(n.toFixed(6));
+  return 'undefined';
+}
+
+function det2x2(M, steps) {
+  const [[a,b],[c,d]] = M;
+  steps.push(`<span>2×2 Determinant Formula: det(A) = ad − bc</span>`);
+  steps.push(`a=${a}, b=${b}, c=${c}, d=${d}`);
+  steps.push(`det(A) = (${a})(${d}) − (${b})(${c})`);
+  steps.push(`       = ${a*d} − ${b*c}`);
+  const result = a*d - b*c;
+  steps.push(`<span>det(A) = ${result}</span>`);
+  return result;
+}
+
+function det3x3(M, steps) {
+  const [[a,b,c],[d,e,f],[g,h,i]] = M;
+  steps.push(`<span>3×3 Sarrus Rule / Cofactor Expansion along Row 1</span>`);
+  steps.push(`det(A) = a(ei−fh) − b(di−fg) + c(dh−eg)`);
+  const t1 = a*(e*i - f*h), t2 = b*(d*i - f*g), t3 = c*(d*h - e*g);
+  steps.push(`= ${a}(${e}×${i} − ${f}×${h}) − ${b}(${d}×${i} − ${f}×${g}) + ${c}(${d}×${h} − ${e}×${g})`);
+  steps.push(`= ${a}(${e*i}-${f*h}) − ${b}(${d*i}-${f*g}) + ${c}(${d*h}-${e*g})`);
+  steps.push(`= ${t1.toFixed(4)} − ${t2.toFixed(4)} + ${t3.toFixed(4)}`);
+  const result = t1 - t2 + t3;
+  steps.push(`<span>det(A) = ${result.toFixed(6)}</span>`);
+  return result;
+}
+
+function detNxN(M, steps, n) {
+  steps.push(`<span>Gaussian Elimination — Upper Triangular Form</span>`);
+  // Deep copy
+  const A = M.map(row => [...row]);
+  let sign = 1;
+
+  for(let col=0;col<n;col++) {
+    // Partial pivoting
+    let maxRow = col;
+    for(let row=col+1;row<n;row++) if(Math.abs(A[row][col])>Math.abs(A[maxRow][col])) maxRow=row;
+    if(maxRow!==col) {
+      [A[col], A[maxRow]] = [A[maxRow], A[col]];
+      sign *= -1;
+      steps.push(`Swap row ${col+1} ↔ row ${maxRow+1} (sign flip)`);
+    }
+    if(Math.abs(A[col][col])<1e-12) {
+      steps.push(`Pivot = 0 → det(A) = 0`);
+      return 0;
+    }
+    for(let row=col+1;row<n;row++) {
+      const factor = A[row][col]/A[col][col];
+      steps.push(`R${row+1} ← R${row+1} − (${factor.toFixed(3)}) × R${col+1}`);
+      for(let k=col;k<n;k++) A[row][k] -= factor*A[col][k];
+    }
+  }
+  let det = sign;
+  let diagStr = 'det = sign × ';
+  for(let i=0;i<n;i++) { det*=A[i][i]; diagStr+=`${A[i][i].toFixed(3)}${i<n-1?' × ':''}` ; }
+  steps.push(diagStr);
+  steps.push(`<span>det(A) = ${det.toFixed(6)}</span>`);
+  return det;
+}
+
+// ═══════════════════════════════════════════════════════
+//  FIBONACCI
+// ═══════════════════════════════════════════════════════
+let fibMemo = {};
+function setFibTab(tab, el) {
+  fibTab = tab;
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function computeFib() {
+  fibMemo = {};
+  const n = parseInt(document.getElementById('fib-n').value)||1;
+  const clampedN = Math.min(n, 30);
+  if(n>30) document.getElementById('fib-n').value = 30;
+
+  const steps = [];
+  let resultText = '';
+
+  if(fibTab === 'recursive' || fibTab === 'both') {
+    const calls = {count:0};
+    const rStart = performance.now();
+    const rResult = fibRecursive(clampedN, calls);
+    const rTime = (performance.now()-rStart).toFixed(3);
+    steps.push(`<span>RECURSIVE METHOD</span>`);
+    steps.push(`F(${clampedN}) = ${rResult}`);
+    steps.push(`Total function calls: ${calls.count}`);
+    steps.push(`Time: ~${rTime}ms`);
+    steps.push(`Time Complexity: O(2ⁿ) — exponential`);
+    steps.push(`Space Complexity: O(n) — call stack depth`);
+    resultText += `Recursive: F(${clampedN}) = ${rResult}`;
+  }
+
+  if(fibTab === 'dp' || fibTab === 'both') {
+    steps.push('');
+    steps.push(`<span>DYNAMIC PROGRAMMING (Tabulation)</span>`);
+    const dpStart = performance.now();
+    const {result:dpResult, table} = fibDP(clampedN);
+    const dpTime = (performance.now()-dpStart).toFixed(3);
+    steps.push(`F(${clampedN}) = ${dpResult}`);
+    steps.push(`Table: [${table.slice(0, Math.min(table.length, 10)).join(', ')}${table.length>10?'...':''}]`);
+    steps.push(`Time: ~${dpTime}ms`);
+    steps.push(`Time Complexity: O(n) — linear`);
+    steps.push(`Space Complexity: O(n) — table storage`);
+    if(fibTab==='both') resultText += `  |  DP: F(${clampedN}) = ${dpResult}`;
+    else resultText = `DP: F(${clampedN}) = ${dpResult}`;
+  }
+
+  document.getElementById('fib-result').textContent = resultText;
+  document.getElementById('fib-steps').innerHTML = steps.filter(Boolean).map(s=>
+    s.startsWith('<span>') ? s : `<div>${s}</div>`
+  ).join('');
+
+  addHistory(`F(${clampedN})`, resultText);
+  drawFibTree(clampedN);
+}
+
+function fibRecursive(n, calls) {
+  calls.count++;
+  if(n<=1) return n;
+  return fibRecursive(n-1,calls) + fibRecursive(n-2,calls);
+}
+
+function fibDP(n) {
+  if(n===0) return {result:0, table:[0]};
+  const table = [0,1];
+  for(let i=2;i<=n;i++) table[i]=table[i-1]+table[i-2];
+  return {result:table[n], table};
+}
+
+// Fibonacci Tree Canvas
+function drawFibTree(n) {
+  const canvas = document.getElementById('fib-tree-canvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 500;
+  const H = 300;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  const bg = isLightMode ? '#e8eeff' : '#080d1a';
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,W,H);
+
+  const maxDepth = Math.min(n, 6);
+  const nodeRadius = 14;
+
+  function getTreeSize(depth) {
+    if(depth<=0) return 1;
+    return getTreeSize(depth-1)+getTreeSize(depth-2)+1;
+  }
+
+  let nodeCount = 0;
+  function drawNode(val, depth, x, y, spread) {
+    if(depth>maxDepth || nodeCount>80) return;
+    nodeCount++;
+
+    const isBase = val<=1;
+    const grad = ctx.createRadialGradient(x,y,0,x,y,nodeRadius);
+    if(isBase) {
+      grad.addColorStop(0,'rgba(0,229,160,0.5)');
+      grad.addColorStop(1,'rgba(0,229,160,0.1)');
+    } else {
+      grad.addColorStop(0,'rgba(79,143,255,0.4)');
+      grad.addColorStop(1,'rgba(79,143,255,0.08)');
+    }
+
+    ctx.beginPath();
+    ctx.arc(x,y,nodeRadius,0,Math.PI*2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = isBase ? 'rgba(0,229,160,0.6)' : 'rgba(79,143,255,0.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = isLightMode ? '#0a0e20' : '#e8eeff';
+    ctx.font = `bold 10px 'JetBrains Mono'`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`F(${val})`,x,y);
+
+    if(val > 1 && depth < maxDepth) {
+      const nextY = y + 52;
+      const nextSpread = Math.max(spread * 0.55, 30);
+
+      // Left child
+      const lx = x - nextSpread;
+      ctx.beginPath();
+      ctx.moveTo(x, y+nodeRadius);
+      ctx.lineTo(lx, nextY-nodeRadius);
+      ctx.strokeStyle = 'rgba(79,143,255,0.25)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      drawNode(val-1, depth+1, lx, nextY, nextSpread);
+
+      // Right child
+      const rx = x + nextSpread;
+      ctx.beginPath();
+      ctx.moveTo(x, y+nodeRadius);
+      ctx.lineTo(rx, nextY-nodeRadius);
+      ctx.strokeStyle = 'rgba(79,143,255,0.25)';
+      ctx.stroke();
+      drawNode(val-2, depth+1, rx, nextY, nextSpread);
+    }
+  }
+
+  nodeCount = 0;
+  drawNode(Math.min(n, maxDepth+1), 0, W/2, 28, W/3.5);
+
+  ctx.fillStyle = 'rgba(79,143,255,0.5)';
+  ctx.font = `10px 'JetBrains Mono'`;
+  ctx.textAlign = 'left';
+  ctx.fillText(`Showing up to depth ${maxDepth} — F(n) nodes in blue, base cases in green`, 12, H-10);
+}
+
+// ═══════════════════════════════════════════════════════
+//  COMPLEXITY CHART
+// ═══════════════════════════════════════════════════════
+function toggleComplexity(fn, el) {
+  complexityEnabled[fn] = !complexityEnabled[fn];
+  el.classList.toggle('active', complexityEnabled[fn]);
+  drawComplexityChart();
+}
+
+function drawComplexityChart() {
+  const canvas = document.getElementById('complexity-canvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const W = canvas.offsetWidth||700;
+  const H = 360;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.height = H+'px';
+  ctx.scale(dpr,dpr);
+
+  const bg = isLightMode ? '#e8eeff' : '#080d1a';
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,W,H);
+
+  const pad = {top:20,right:20,bottom:40,left:50};
+  const cW = W-pad.left-pad.right, cH = H-pad.top-pad.bottom;
+
+  // Grid
+  ctx.strokeStyle = isLightMode ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for(let i=0;i<=10;i++) {
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top+i*cH/10);
+    ctx.lineTo(pad.left+cW, pad.top+i*cH/10);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pad.left+i*cW/10, pad.top);
+    ctx.lineTo(pad.left+i*cW/10, pad.top+cH);
+    ctx.stroke();
+  }
+
+  // Axes
+  const axisColor = isLightMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.2)';
+  ctx.strokeStyle = axisColor;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(pad.left,pad.top); ctx.lineTo(pad.left,pad.top+cH); ctx.lineTo(pad.left+cW,pad.top+cH);
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = isLightMode ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.3)';
+  ctx.font = `10px 'JetBrains Mono'`;
+  ctx.textAlign = 'center';
+  ctx.fillText('n (input size)', pad.left+cW/2, H-6);
+  ctx.save(); ctx.translate(12, pad.top+cH/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('operations', 0, 0); ctx.restore();
+
+  const N = 20, maxOps = cH*0.95;
+
+  const fns = {
+    o1:    { fn: ()=>1,                color:'#00e5a0', label:'O(1)' },
+    ologn: { fn: n=>Math.log2(n+1),    color:'#00e5ff', label:'O(log n)' },
+    on:    { fn: n=>n,                  color:'#4f8fff', label:'O(n)' },
+    onlogn:{ fn: n=>n*Math.log2(n+1),  color:'#ffaa00', label:'O(n log n)' },
+    on2:   { fn: n=>n*n,               color:'#ff6432', label:'O(n²)' },
+    o2n:   { fn: n=>Math.pow(2,n),     color:'#ff4466', label:'O(2ⁿ)' },
+  };
+
+  // Compute max value among active fns
+  let maxVal = 1;
+  Object.entries(fns).forEach(([k,f]) => {
+    if(!complexityEnabled[k]) return;
+    for(let i=1;i<=N;i++) maxVal = Math.max(maxVal, f.fn(i));
+  });
+  maxVal = Math.min(maxVal, 1000);
+
+  function toX(n) { return pad.left + (n/N)*cW; }
+  function toY(v) { return pad.top + cH - Math.min(v/maxVal,1)*cH; }
+
+  // Draw curves
+  Object.entries(fns).forEach(([k,f]) => {
+    if(!complexityEnabled[k]) return;
+    ctx.beginPath();
+    ctx.strokeStyle = f.color;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = f.color;
+    ctx.shadowBlur = 4;
+    let started = false;
+    for(let n=1;n<=N;n++) {
+      const val = f.fn(n);
+      const x = toX(n), y = toY(val);
+      if(!started) { ctx.moveTo(x,y); started=true; }
+      else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Label at end
+    const lastN = N, lastV = f.fn(lastN);
+    const lx = toX(lastN)+4, ly = Math.max(toY(lastV), pad.top+8);
+    ctx.fillStyle = f.color;
+    ctx.font = `bold 10px 'JetBrains Mono'`;
+    ctx.textAlign = 'left';
+    if(ly < pad.top+cH) ctx.fillText(f.label, lx, ly);
+  });
+
+  // X axis ticks
+  ctx.fillStyle = isLightMode ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.3)';
+  ctx.font = `9px 'JetBrains Mono'`;
+  ctx.textAlign = 'center';
+  for(let n=5;n<=N;n+=5) ctx.fillText(n, toX(n), pad.top+cH+14);
+}
+
+// ═══════════════════════════════════════════════════════
+//  PRIME GENERATOR
+// ═══════════════════════════════════════════════════════
+function generatePrimes() {
+  const n = Math.min(parseInt(document.getElementById('prime-n').value)||50, 500);
+  const sieve = Array(n+1).fill(true);
+  sieve[0]=sieve[1]=false;
+  for(let i=2;i*i<=n;i++) if(sieve[i]) for(let j=i*i;j<=n;j+=i) sieve[j]=false;
+  const primes = [];
+  for(let i=2;i<=n;i++) if(sieve[i]) primes.push(i);
+  document.getElementById('prime-result').textContent = primes.join(', ');
+  document.getElementById('prime-count').textContent = `Found ${primes.length} primes ≤ ${n}`;
+  addHistory(`primes(${n})`, `${primes.length} primes found`);
+}
+
+// ═══════════════════════════════════════════════════════
+//  GCD & LCM
+// ═══════════════════════════════════════════════════════
+function calcGCDLCM() {
+  const a = parseInt(document.getElementById('gcd-a').value)||0;
+  const b = parseInt(document.getElementById('gcd-b').value)||0;
+  const steps = [];
+
+  function gcdEuclid(x,y) {
+    steps.push(`gcd(${x}, ${y})`);
+    while(y!==0) { const t=y; y=x%y; x=t; steps.push(`→ gcd(${x}, ${y})`); }
+    return x;
+  }
+
+  const gcd = gcdEuclid(Math.abs(a),Math.abs(b));
+  const lcm = (a*b!==0) ? Math.abs(a*b)/gcd : 0;
+
+  document.getElementById('gcd-result').textContent = gcd;
+  document.getElementById('lcm-result').textContent = lcm;
+  document.getElementById('gcd-steps').innerHTML = steps.map(s=>`<div>${s}</div>`).join('');
+  addHistory(`gcd(${a},${b})`, `GCD=${gcd}, LCM=${lcm}`);
+}
+
+// ═══════════════════════════════════════════════════════
+//  FACTORIAL
+// ═══════════════════════════════════════════════════════
+function calcFactorial() {
+  const n = Math.min(parseInt(document.getElementById('fact-n').value)||0, 100);
+  let result = BigInt(1);
+  for(let i=2;i<=n;i++) result *= BigInt(i);
+  const str = result.toString();
+  document.getElementById('fact-result').textContent = str;
+  document.getElementById('fact-digits').textContent = `${n}! has ${str.length} digits`;
+  addHistory(`${n}!`, str.length>20?str.slice(0,20)+'...':str);
+}
+
+// ═══════════════════════════════════════════════════════
+//  BINARY CONVERTER
+// ═══════════════════════════════════════════════════════
+function convertBase() {
+  const n = parseInt(document.getElementById('bin-n').value)||0;
+  const bin = n.toString(2).replace(/(.{8})/g,'$1 ').trim();
+  document.getElementById('bin-result').textContent = bin;
+  document.getElementById('oct-result').textContent = '0' + n.toString(8);
+  document.getElementById('hex-result').textContent = '0x' + n.toString(16).toUpperCase();
+  addHistory(`convert(${n})`, `BIN: ${n.toString(2)}`);
+}
+
+// ═══════════════════════════════════════════════════════
+//  PASCAL TRIANGLE
+// ═══════════════════════════════════════════════════════
+function generatePascal() {
+  const rows = Math.min(parseInt(document.getElementById('pascal-n').value)||7, 12);
+  const container = document.getElementById('pascal-output');
+  const triangle = [[1]];
+  for(let i=1;i<rows;i++) {
+    const row=[1];
+    for(let j=1;j<triangle[i-1].length;j++) row.push(triangle[i-1][j-1]+triangle[i-1][j]);
+    row.push(1);
+    triangle.push(row);
+  }
+  container.innerHTML = triangle.map(row=>`
+    <div class="pascal-row">
+      ${row.map(n=>`<div class="pascal-cell">${n}</div>`).join('')}
+    </div>
+  `).join('');
+  addHistory(`pascal(${rows})`, `${rows} rows generated`);
+}
+
+// ═══════════════════════════════════════════════════════
+//  SORTING VISUALIZER
+// ═══════════════════════════════════════════════════════
+function selectSort(algo, el) {
+  currentSort = algo;
+  document.querySelectorAll('#sort-algo-btns .sort-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  resetSort();
+  const info = {
+    bubble:'Bubble Sort — O(n²) time, O(1) space. Repeatedly swaps adjacent elements.',
+    merge:'Merge Sort — O(n log n) time, O(n) space. Divide and conquer.',
+    quick:'Quick Sort — O(n log n) avg, O(n²) worst. Partition around pivot.',
+    linear:'Linear Search — O(n) time. Scans array sequentially for target.',
+    binary:'Binary Search — O(log n) time. Requires sorted array; halves search space.',
+  };
+  document.getElementById('sort-info').textContent = info[algo]||'';
+}
+
+function resetSort() {
+  sortRunning = false;
+  const size = Math.min(parseInt(document.getElementById('sort-size').value)||30, 60);
+  sortArray = Array.from({length:size}, ()=>Math.floor(Math.random()*100)+5);
+  document.getElementById('sort-stats').textContent = '';
+  drawSortBars(sortArray, [], -1, -1);
+}
+
+function drawSortBars(arr, highlighted=[], pivot=-1, found=-1) {
+  const canvas = document.getElementById('sort-canvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const W = canvas.offsetWidth||700;
+  const H = 280;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.height = H+'px';
+  ctx.scale(dpr,dpr);
+
+  const bg = isLightMode ? '#e8eeff' : '#080d1a';
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,W,H);
+
+  const n = arr.length;
+  const maxVal = Math.max(...arr);
+  const barW = (W-20) / n;
+  const gap = Math.max(1, barW*0.15);
+
+  arr.forEach((val,i) => {
+    const bw = barW - gap;
+    const bh = ((val/maxVal) * (H-40));
+    const x = 10 + i*barW;
+    const y = H-10-bh;
+
+    let color;
+    if(i===found) color = '#00e5a0';
+    else if(i===pivot) color = '#ffaa00';
+    else if(highlighted.includes(i)) color = '#ff4466';
+    else color = '#4f8fff';
+
+    const grad = ctx.createLinearGradient(x,y,x,H-10);
+    grad.addColorStop(0, color);
+    grad.addColorStop(1, color.replace(')',',0.4)').replace('rgb','rgba'));
+
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect(x, y, Math.max(bw,1), bh, [3,3,0,0]);
+    ctx.fill();
+
+    if(barW > 16) {
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = `8px 'JetBrains Mono'`;
+      ctx.textAlign='center';
+      ctx.fillText(val, x+bw/2, y-4);
+    }
+  });
+}
+
+async function startSort() {
+  if(sortRunning) return;
+  sortRunning = true;
+  const btn = document.getElementById('sort-start-btn');
+  btn.textContent = '⏳ Running...';
+  const delay = ()=>new Promise(r=>setTimeout(r, parseInt(document.getElementById('sort-speed').value)||80));
+  let comparisons=0, swaps=0;
+
+  const update = (arr,hi=[],piv=-1,found=-1) => {
+    document.getElementById('sort-stats').textContent = `Comparisons: ${comparisons}  Swaps: ${swaps}`;
+    drawSortBars(arr,hi,piv,found);
+  };
+
+  const arr = [...sortArray];
+
+  if(currentSort==='bubble') {
+    for(let i=0;i<arr.length;i++) for(let j=0;j<arr.length-i-1;j++) {
+      comparisons++;
+      update(arr,[j,j+1]);
+      await delay();
+      if(arr[j]>arr[j+1]){ [arr[j],arr[j+1]]=[arr[j+1],arr[j]]; swaps++; }
+    }
+  } else if(currentSort==='merge') {
+    async function merge(a,l,m,r) {
+      const L=a.slice(l,m+1),R=a.slice(m+1,r+1);
+      let i=0,j=0,k=l;
+      while(i<L.length&&j<R.length){
+        comparisons++;
+        if(L[i]<=R[j]){a[k++]=L[i++];}else{a[k++]=R[j++];}
+        swaps++;
+        update(a,[k-1]);
+        await delay();
+      }
+      while(i<L.length){a[k++]=L[i++];update(a,[k-1]);await delay();}
+      while(j<R.length){a[k++]=R[j++];update(a,[k-1]);await delay();}
+    }
+    async function mergeSort(a,l,r){
+      if(l<r){const m=Math.floor((l+r)/2);await mergeSort(a,l,m);await mergeSort(a,m+1,r);await merge(a,l,m,r);}
+    }
+    await mergeSort(arr,0,arr.length-1);
+  } else if(currentSort==='quick') {
+    async function partition(a,lo,hi){
+      const pivot=a[hi]; let i=lo-1;
+      for(let j=lo;j<hi;j++){
+        comparisons++;
+        update(a,[j],hi);
+        await delay();
+        if(a[j]<=pivot){i++;[a[i],a[j]]=[a[j],a[i]];swaps++;}
+      }
+      [a[i+1],a[hi]]=[a[hi],a[i+1]];swaps++;
+      return i+1;
+    }
+    async function quickSort(a,lo,hi){
+      if(lo<hi){const p=await partition(a,lo,hi);await quickSort(a,lo,p-1);await quickSort(a,p+1,hi);}
+    }
+    await quickSort(arr,0,arr.length-1);
+  } else if(currentSort==='linear') {
+    const target = arr[Math.floor(Math.random()*arr.length)];
+    for(let i=0;i<arr.length;i++){
+      comparisons++;
+      if(arr[i]===target){ update(arr,[],- 1,i); await delay(); break; }
+      update(arr,[i]);
+      await delay();
+    }
+    document.getElementById('sort-stats').textContent += `  Target: ${target} found`;
+    sortRunning = false; btn.textContent='▶ Start'; return;
+  } else if(currentSort==='binary') {
+    arr.sort((a,b)=>a-b);
+    drawSortBars(arr);
+    const target = arr[Math.floor(Math.random()*arr.length)];
+    let lo=0,hi=arr.length-1;
+    while(lo<=hi){
+      comparisons++;
+      const mid=Math.floor((lo+hi)/2);
+      update(arr,[lo,hi],mid);
+      await delay();
+      if(arr[mid]===target){update(arr,[],- 1,mid);break;}
+      else if(arr[mid]<target)lo=mid+1;
+      else hi=mid-1;
+    }
+    document.getElementById('sort-stats').textContent = `Comparisons: ${comparisons}  Target: ${target} found`;
+    sortRunning=false; btn.textContent='▶ Start'; return;
+  }
+
+  update(arr);
+  sortArray = arr;
+  sortRunning = false;
+  btn.textContent = '▶ Start';
+  showToast(`${currentSort.charAt(0).toUpperCase()+currentSort.slice(1)} complete — ${comparisons} comparisons, ${swaps} swaps`);
+  addHistory(`${currentSort}(n=${arr.length})`, `${comparisons} comparisons`);
+}
+
+// ═══════════════════════════════════════════════════════
+//  RESIZE HANDLER
+// ═══════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  drawComplexityChart();
+  drawFibTree(parseInt(document.getElementById('fib-n').value)||8);
+  drawSortBars(sortArray);
+});
+
+// ═══════════════════════════════════════════════════════
+//  AUTO-INIT DEFAULTS
+// ═══════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    drawComplexityChart();
+    drawFibTree(8);
+    drawSortBars(sortArray);
+  }, 200);
+});
+</script>
+</body>
+</html>
